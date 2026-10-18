@@ -1,12 +1,12 @@
 :root {
   color-scheme: light;
   font-family: Arial, Helvetica, sans-serif;
-  color: #29213d;
-  background: #f6f2ff;
-  --purple: #7041c6;
-  --purple-dark: #512d9a;
-  --purple-pale: #eee7fb;
-  --border: #ded5ee;
+  color: #263746;
+  background: #f2f5f7;
+  --navy: #183d5b;
+  --blue: #245f87;
+  --border: #cbd5dc;
+  --muted: #5e6c76;
 }
 
 * {
@@ -17,99 +17,174 @@ body {
   margin: 0;
 }
 
-.page-shell {
-  width: min(900px, calc(100% - 32px));
+.site-header {
+  border-bottom: 4px solid #b8cbd7;
+  background: #fff;
+}
+
+.header-inner {
+  display: flex;
+  width: min(1000px, calc(100% - 32px));
+  min-height: 82px;
   margin: 0 auto;
-  padding: 36px 0 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
 }
 
-.page-heading {
-  margin-bottom: 24px;
-  text-align: center;
+.brand h1 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 1.8rem;
 }
 
-.eyebrow {
-  margin: 0 0 8px;
-  color: var(--purple);
+.brand p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.service-label {
+  color: var(--navy);
   font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
 }
 
-h1, h2, h3, p {
-  margin-top: 0;
+.page-shell {
+  width: min(920px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 26px 0 48px;
 }
 
-h1 {
-  margin-bottom: 8px;
-  color: var(--purple-dark);
-  font-size: clamp(2.3rem, 7vw, 3.2rem);
+.page-intro {
+  margin-bottom: 20px;
 }
 
-.page-heading > p:last-child {
-  color: #6c6479;
+.breadcrumb {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
-.card {
-  margin: 18px 0;
-  padding: 26px;
+.page-intro h2 {
+  margin: 0 0 6px;
+  color: var(--navy);
+  font-size: 1.6rem;
+}
+
+.page-intro > p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+
+.form-panel,
+.result-card {
   border: 1px solid var(--border);
-  border-radius: 16px;
   background: #fff;
-  box-shadow: 0 8px 24px rgb(69 44 112 / 8%);
 }
 
-.card h2 {
-  color: var(--purple-dark);
+.panel-heading {
+  display: flex;
+  min-height: 48px;
+  padding: 12px 18px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: #f8fafb;
+}
+
+.panel-heading h3 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 1rem;
+}
+
+.panel-heading span,
+.section-note {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+form {
+  padding: 4px 18px 20px;
+}
+
+fieldset {
+  min-width: 0;
+  margin: 12px 0 0;
+  padding: 16px 0 20px;
+  border: 0;
+  border-bottom: 1px solid #e0e6ea;
+}
+
+legend {
+  padding: 0;
+  color: var(--navy);
+  font-size: 0.98rem;
+  font-weight: 700;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 15px 20px;
 }
 
 label {
   display: grid;
-  gap: 7px;
-  color: #423956;
-  font-size: 0.92rem;
+  gap: 6px;
+  color: #344957;
+  font-size: 0.9rem;
   font-weight: 700;
 }
 
-input, select {
+.field-help {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+input,
+select {
   width: 100%;
-  min-height: 42px;
-  padding: 9px 11px;
-  border: 1px solid #cfc5df;
-  border-radius: 8px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #aebdc7;
+  border-radius: 2px;
   background: #fff;
   color: inherit;
   font: inherit;
   font-weight: 400;
 }
 
-input:focus, select:focus {
-  outline: 3px solid rgb(112 65 198 / 18%);
-  border-color: var(--purple);
+input:focus,
+select:focus {
+  outline: 2px solid #85b5d1;
+  outline-offset: 1px;
+  border-color: var(--blue);
 }
 
-.card h3 {
-  margin: 24px 0 5px;
+h4 {
+  margin: 20px 0 5px;
+  color: var(--navy);
+  font-size: 0.92rem;
 }
 
-.help-text {
-  color: #6c6479;
-  font-size: 0.9rem;
+.section-note {
+  margin: 0 0 12px;
 }
 
 button {
-  min-height: 44px;
-  margin-top: 18px;
-  padding: 10px 18px;
-  border: 0;
-  border-radius: 9px;
-  background: var(--purple);
+  min-height: 40px;
+  margin-top: 16px;
+  padding: 9px 18px;
+  border: 1px solid #16486b;
+  border-radius: 2px;
+  background: var(--blue);
   color: #fff;
   font: inherit;
   font-weight: 700;
@@ -117,71 +192,90 @@ button {
 }
 
 button:hover {
-  background: var(--purple-dark);
+  background: var(--navy);
 }
 
 .message {
   min-height: 1.2em;
   margin: 14px 0 0;
-  color: #a32945;
+  color: #9c2835;
 }
 
 .result-card {
-  border-top: 5px solid var(--purple);
+  margin-top: 18px;
+  padding: 20px;
+  border-top: 4px solid var(--blue);
+}
+
+.result-card h2 {
+  margin: 0 0 12px;
+  color: var(--navy);
+  font-size: 1.2rem;
 }
 
 .status-label {
   display: inline-block;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: var(--purple-pale);
-  color: var(--purple-dark);
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  background: #eef3f6;
+  color: var(--navy);
   font-weight: 700;
 }
 
 .status-label.green {
-  background: #e5f6e9;
-  color: #206331;
+  background: #eaf4ec;
+  color: #28613a;
 }
 
 .status-label.yellow {
-  background: #fff4d8;
-  color: #745313;
+  background: #fff5df;
+  color: #76540d;
 }
 
 .status-label.red {
-  background: #fde7e7;
-  color: #8d2929;
+  background: #fbeaea;
+  color: #872e32;
 }
 
 .result-details p {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee9f4;
+  padding: 9px 0;
+  border-bottom: 1px solid #e5eaed;
 }
 
 .recommendation {
-  margin: 18px 0 0;
-  padding: 14px;
-  border-radius: 9px;
-  background: #f7f3fd;
-  line-height: 1.5;
+  margin: 16px 0 0;
+  padding: 12px;
+  border-left: 3px solid var(--blue);
+  background: #f4f7f9;
+  line-height: 1.45;
 }
 
 @media (max-width: 620px) {
-  .page-shell {
-    width: min(100% - 20px, 900px);
-    padding-top: 24px;
+  .header-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    padding: 12px 0;
   }
 
-  .card {
-    padding: 19px;
+  .service-label {
+    font-size: 0.7rem;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .page-shell {
+    width: min(100% - 20px, 920px);
+  }
+
+  form {
+    padding-right: 14px;
+    padding-left: 14px;
   }
 
   .result-details p {

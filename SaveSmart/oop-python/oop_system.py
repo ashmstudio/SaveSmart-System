@@ -14,15 +14,15 @@ EXPENSE_FIELDS = (
 )
 
 FIELD_LABELS = {
-    "monthlyAllowance": "monthly allowance",
+    "monthlyAllowance": "allowance received each time",
     "currentSavings": "current savings",
-    "savingsGoal": "savings goal",
-    "savingPeriod": "saving period",
-    "plannedMonthlySavings": "planned monthly savings",
-    "food": "food expenses",
+    "savingsGoal": "target savings amount",
+    "savingPeriod": "months remaining to reach your goal",
+    "plannedMonthlySavings": "money you can set aside each month",
+    "food": "food and meals expenses",
     "transportation": "transportation expenses",
     "school": "school expenses",
-    "internet": "internet expenses",
+    "internet": "internet and data expenses",
     "personal": "personal expenses",
     "other": "other expenses",
 }
@@ -70,7 +70,7 @@ class SavingsAssessmentSystem:
         error_message = (
             "Please enter a whole number of months greater than 0."
             if field == "savingPeriod"
-            else f"Please enter a valid amount for {FIELD_LABELS[field]}."
+            else f"Please enter a whole-peso amount for {FIELD_LABELS[field]}."
         )
         if allow_empty and (value is None or value == ""):
             return 0.0
@@ -93,12 +93,11 @@ class SavingsAssessmentSystem:
         if field == "savingPeriod":
             if not math.isfinite(number) or number <= 0 or not number.is_integer():
                 raise ValueError(error_message)
-        elif not math.isfinite(number) or number < 0:
-            raise ValueError(error_message)
         else:
-            cents_value = number * 100
-            if not math.isfinite(cents_value) or abs(cents_value - round(cents_value)) > 1e-8:
+            if not math.isfinite(number) or number < 0 or not number.is_integer():
                 raise ValueError(error_message)
+            if field == "savingsGoal" and number <= 0:
+                raise ValueError("Target savings amount must be greater than 0.")
         return number
 
     def calculate_monthly_income(self):
@@ -122,51 +121,73 @@ class SavingsAssessmentSystem:
 
     def calculate_expected_savings(self):
         return self.current_savings + (
-            self.planned_monthly_savings * self.saving_period
+            self.calculate_monthly_savings_capacity() * self.saving_period
         )
 
-    def assess_goal(self, available_money, required_savings, expected_savings):
-        if self.savings_goal <= 0:
+    def calculate_monthly_savings_capacity(self):
+        monthly_income = self.calculate_monthly_income()
+        total_expenses = self.calculate_total_expenses()
+        available_money = monthly_income - total_expenses
+        return max(0, min(self.planned_monthly_savings, available_money))
+
+    def assess_goal(self, required_savings, expected_savings):
+        if self.current_savings >= self.savings_goal:
             return "GREEN"
-        if available_money >= required_savings and expected_savings >= self.savings_goal:
+        monthly_savings_capacity = self.calculate_monthly_savings_capacity()
+        if (
+            monthly_savings_capacity >= required_savings
+            and expected_savings >= self.savings_goal
+        ):
             return "GREEN"
-        if available_money > 0 and (
+        if monthly_savings_capacity > 0 and (
             expected_savings >= self.savings_goal * 0.8
-            or available_money >= required_savings * 0.8
+            or monthly_savings_capacity >= required_savings * 0.8
         ):
             return "YELLOW"
         return "RED"
 
-    @staticmethod
-    def recommendation_for(status):
+    def recommendation_for(self, status, available_money):
+        if self.current_savings >= self.savings_goal:
+            return "You have already saved enough to reach your target."
+        if available_money <= 0:
+            return (
+                "Your allowance does not cover the monthly expenses entered, so "
+                "there is no money left to save. Check your amounts."
+            )
+        if self.planned_monthly_savings > available_money:
+            return (
+                "Your planned monthly savings are higher than the money left after "
+                "expenses. The assessment uses only the available amount as your "
+                "monthly savings capacity. Review your plan or expenses."
+            )
         if status == "GREEN":
             return (
-                "Your current plan can support your savings goal. Try to save your "
-                "planned amount consistently each month."
+                "Your monthly savings amount is enough to reach your target within "
+                "the months remaining."
             )
         if status == "YELLOW":
             return (
-                "Your goal may be difficult to reach within your selected period. "
-                "Consider reducing some non-essential expenses or extending the "
-                "saving period."
+                "Your savings may get close to the target but may not reach it in "
+                "time. Try saving more each month or allow more months."
             )
         return (
-            "Your current available money may not support this goal within the "
-            "selected period. Consider a smaller goal or a longer saving period."
+            "Your monthly savings amount is not enough to reach the target in "
+            "time. Try saving more each month or allow more months."
         )
 
     def process(self):
         monthly_income = self.calculate_monthly_income()
         total_expenses = self.calculate_total_expenses()
         available_money = monthly_income - total_expenses
+        monthly_savings_capacity = self.calculate_monthly_savings_capacity()
         required_savings = self.calculate_required_monthly_savings()
         expected_savings = self.calculate_expected_savings()
-        status = self.assess_goal(
-            available_money, required_savings, expected_savings
-        )
+        status = self.assess_goal(required_savings, expected_savings)
 
         return {
             "studentName": self.student_name,
+            "monthlyAllowance": self.monthly_allowance,
+            "allowanceFrequency": self.allowance_frequency,
             "estimatedMonthlyIncome": monthly_income,
             "totalMonthlyExpenses": total_expenses,
             "availableMoney": available_money,
@@ -174,12 +195,13 @@ class SavingsAssessmentSystem:
             "savingsGoal": self.savings_goal,
             "requiredMonthlySavings": required_savings,
             "plannedMonthlySavings": self.planned_monthly_savings,
+            "monthlySavingsCapacity": monthly_savings_capacity,
             "savingPeriod": self.saving_period,
             "expectedSavings": expected_savings,
             "goalPurpose": self.goal_purpose,
             "status": status,
             "statusLabel": STATUS_LABELS[status],
-            "recommendation": self.recommendation_for(status),
+            "recommendation": self.recommendation_for(status, available_money),
         }
 
 

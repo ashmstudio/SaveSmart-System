@@ -8,15 +8,15 @@ const expenseFields = [
 ];
 
 const fieldLabels = {
-  monthlyAllowance: "monthly allowance",
+  monthlyAllowance: "allowance received each time",
   currentSavings: "current savings",
-  savingsGoal: "savings goal",
-  savingPeriod: "saving period",
-  plannedMonthlySavings: "planned monthly savings",
-  food: "food expenses",
+  savingsGoal: "target savings amount",
+  savingPeriod: "months remaining to reach your goal",
+  plannedMonthlySavings: "money you can set aside each month",
+  food: "food and meals expenses",
   transportation: "transportation expenses",
   school: "school expenses",
-  internet: "internet expenses",
+  internet: "internet and data expenses",
   personal: "personal expenses",
   other: "other expenses",
 };
@@ -34,7 +34,7 @@ function readNumber(input, field, allowEmpty = false) {
   const errorMessage =
     field === "savingPeriod"
       ? "Please enter a whole number of months greater than 0."
-      : `Please enter a valid amount for ${fieldLabels[field]}.`;
+      : `Please enter a whole-peso amount for ${fieldLabels[field]}.`;
 
   if (allowEmpty && (value === undefined || value === null || value === "")) {
     return 0;
@@ -63,15 +63,12 @@ function readNumber(input, field, allowEmpty = false) {
     if (!Number.isFinite(value) || value <= 0 || !Number.isInteger(value)) {
       throw new Error(errorMessage);
     }
-  } else if (!Number.isFinite(value) || value < 0) {
-    throw new Error(errorMessage);
   } else {
-    const centsValue = value * 100;
-    if (
-      !Number.isFinite(centsValue) ||
-      Math.abs(centsValue - Math.round(centsValue)) > 1e-8
-    ) {
+    if (!Number.isFinite(value) || value < 0 || !Number.isInteger(value)) {
       throw new Error(errorMessage);
+    }
+    if (field === "savingsGoal" && value <= 0) {
+      throw new Error("Target savings amount must be greater than 0.");
     }
   }
   return value;
@@ -115,43 +112,57 @@ function processAssessment(input) {
   }
 
   const availableMoney = estimatedMonthlyIncome - totalMonthlyExpenses;
+  const monthlySavingsCapacity = Math.max(
+    0,
+    Math.min(plannedMonthlySavings, availableMoney),
+  );
   const remainingGoal = savingsGoal - currentSavings;
   let requiredMonthlySavings = 0;
   if (remainingGoal > 0) {
     requiredMonthlySavings = remainingGoal / savingPeriod;
   }
 
-  const expectedSavings =
-    currentSavings + plannedMonthlySavings * savingPeriod;
+  const expectedSavings = currentSavings + monthlySavingsCapacity * savingPeriod;
   let status = "RED";
 
-  if (savingsGoal <= 0) {
+  if (currentSavings >= savingsGoal) {
     status = "GREEN";
   } else if (
-    availableMoney >= requiredMonthlySavings &&
+    monthlySavingsCapacity >= requiredMonthlySavings &&
     expectedSavings >= savingsGoal
   ) {
     status = "GREEN";
   } else if (
-    availableMoney > 0 &&
+    monthlySavingsCapacity > 0 &&
     (expectedSavings >= savingsGoal * 0.8 ||
-      availableMoney >= requiredMonthlySavings * 0.8)
+      monthlySavingsCapacity >= requiredMonthlySavings * 0.8)
   ) {
     status = "YELLOW";
   }
 
-  let recommendation =
-    "Your current available money may not support this goal within the selected period. Consider a smaller goal or a longer saving period.";
-  if (status === "GREEN") {
+  let recommendation;
+  if (currentSavings >= savingsGoal) {
+    recommendation = "You have already saved enough to reach your target.";
+  } else if (availableMoney <= 0) {
     recommendation =
-      "Your current plan can support your savings goal. Try to save your planned amount consistently each month.";
+      "Your allowance does not cover the monthly expenses entered, so there is no money left to save. Check your amounts.";
+  } else if (plannedMonthlySavings > availableMoney) {
+    recommendation =
+      "Your planned monthly savings are higher than the money left after expenses. The assessment uses only the available amount as your monthly savings capacity. Review your plan or expenses.";
+  } else if (status === "GREEN") {
+    recommendation =
+      "Your monthly savings amount is enough to reach your target within the months remaining.";
   } else if (status === "YELLOW") {
     recommendation =
-      "Your goal may be difficult to reach within your selected period. Consider reducing some non-essential expenses or extending the saving period.";
+      "Your savings may get close to the target but may not reach it in time. Try saving more each month or allow more months.";
+  } else {
+    recommendation =
+      "Your monthly savings amount is not enough to reach the target in time. Try saving more each month or allow more months.";
   }
 
   return {
     studentName,
+    monthlyAllowance,
     estimatedMonthlyIncome,
     totalMonthlyExpenses,
     availableMoney,
@@ -159,12 +170,14 @@ function processAssessment(input) {
     savingsGoal,
     requiredMonthlySavings,
     plannedMonthlySavings,
+    monthlySavingsCapacity,
     savingPeriod,
     expectedSavings,
     goalPurpose,
     status,
     statusLabel: statusLabels[status],
     recommendation,
+    allowanceFrequency,
   };
 }
 
@@ -172,15 +185,17 @@ function showResult(result) {
   const details = [
     ["Your name", result.studentName],
     ["What are you saving for?", result.goalPurpose],
-    ["How much have you saved?", formatMoney(result.currentSavings)],
-    ["How much do you want to save?", formatMoney(result.savingsGoal)],
-    ["How many months do you have?", `${result.savingPeriod} months`],
-    ["How much can you save each month?", formatMoney(result.plannedMonthlySavings)],
-    ["Estimated monthly income", formatMoney(result.estimatedMonthlyIncome)],
-    ["Total monthly expenses", formatMoney(result.totalMonthlyExpenses)],
-    ["Available money", formatMoney(result.availableMoney)],
-    ["Required monthly savings", formatMoney(result.requiredMonthlySavings)],
-    ["Expected savings", formatMoney(result.expectedSavings)],
+    ["Current savings so far", formatMoney(result.currentSavings)],
+    ["Target savings amount", formatMoney(result.savingsGoal)],
+    ["Months remaining to reach your goal", `${result.savingPeriod} months`],
+    ["Allowance received each time", formatMoney(result.monthlyAllowance)],
+    ["Allowance frequency", result.allowanceFrequency],
+    ["Amount you can set aside each month", formatMoney(result.plannedMonthlySavings)],
+    ["Available to save after expenses", formatMoney(result.monthlySavingsCapacity)],
+    ["Estimated monthly allowance", formatMoney(result.estimatedMonthlyIncome)],
+    ["Estimated monthly expenses", formatMoney(result.totalMonthlyExpenses)],
+    ["Required savings each month", formatMoney(result.requiredMonthlySavings)],
+    ["Estimated savings by your target date", formatMoney(result.expectedSavings)],
   ];
   const resultDetails = document.getElementById("resultDetails");
   resultDetails.replaceChildren();
@@ -202,10 +217,10 @@ function showResult(result) {
 }
 
 function formatMoney(amount) {
-  return Number(amount).toLocaleString("en-PH", {
+  return `₱${Number(amount).toLocaleString("en-PH", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  });
+  })}`;
 }
 
 if (typeof document !== "undefined") {

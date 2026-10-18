@@ -8,79 +8,106 @@
     <script src="{{ url_for('static', filename='app.js') }}" defer></script>
   </head>
   <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand">
+          <h1>SaveSmart</h1>
+          <p>OOP · Python assessment</p>
+        </div>
+        <span class="service-label">STUDENT SAVINGS SERVICE</span>
+      </div>
+    </header>
+
     <main class="page-shell">
-      <header class="page-heading">
-        <h1>SaveSmart</h1>
-      </header>
+      <div class="page-intro">
+        <p class="breadcrumb">HOME / SAVINGS ASSESSMENT</p>
+        <h2>Savings assessment</h2>
+        <p>Complete your savings and monthly budget details.</p>
+      </div>
 
-      <section class="card">
-        <h2>Your assessment</h2>
-        <p class="help-text">* Required</p>
+      <section class="form-panel">
+        <div class="panel-heading">
+          <h3>Assessment form</h3>
+          <span>* Required</span>
+        </div>
         <form id="assessmentForm" novalidate>
-          <div class="form-grid">
-            <label>
-              Your name
-              <input name="studentName" type="text" placeholder="Your name" />
-            </label>
-            <label>
-              What are you saving for?
-              <select name="goalPurpose">
-                <option>School Expenses</option>
-                <option>Gadget / Laptop</option>
-                <option>Emergency Fund</option>
-                <option>Travel</option>
-                <option>Personal Goal</option>
-                <option>Other</option>
-              </select>
-            </label>
-            <label>
-              How much do you want to save? *
-              <input name="savingsGoal" type="number" min="0" step="0.01" required />
-            </label>
-            <label>
-              How many months do you have? *
-              <input name="savingPeriod" type="number" min="1" step="1" required />
-            </label>
-            <label>
-              How much have you saved? *
-              <input name="currentSavings" type="number" min="0" step="0.01" required />
-            </label>
-            <label>
-              How much allowance do you receive? *
-              <input name="monthlyAllowance" type="number" min="0" step="0.01" required />
-            </label>
-            <label>
-              How often do you receive your allowance?
-              <select name="allowanceFrequency">
-                <option value="weekly">Weekly</option>
-                <option value="every_2_weeks">Every 2 weeks</option>
-                <option value="monthly">Monthly</option>
-              </select>
-            </label>
-            <label>
-              How much can you save each month? *
-              <input name="plannedMonthlySavings" type="number" min="0" step="0.01" required />
-            </label>
-          </div>
+          <fieldset>
+            <legend>Applicant and savings goal</legend>
+            <div class="form-grid">
+              <label>
+                Your name (optional)
+                <input name="studentName" type="text" placeholder="Enter your name" />
+              </label>
+              <label>
+                Savings purpose
+                <select name="goalPurpose">
+                  <option>School Expenses</option>
+                  <option>Gadget / Laptop</option>
+                  <option>Emergency Fund</option>
+                  <option>Travel</option>
+                  <option>Personal Goal</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label>
+                Target amount (₱) *
+                <small class="field-help">Whole pesos; enter your final goal.</small>
+                <input name="savingsGoal" type="number" min="1" step="1" placeholder="e.g. 5000" required />
+              </label>
+              <label>
+                Months to reach target *
+                <small class="field-help">Whole months from now (e.g. 6).</small>
+                <input name="savingPeriod" type="number" min="1" step="1" placeholder="e.g. 6" required />
+              </label>
+              <label>
+                Current savings (₱) *
+                <small class="field-help">Amount already saved toward this goal.</small>
+                <input name="currentSavings" type="number" min="0" step="1" placeholder="e.g. 3000" required />
+              </label>
+            </div>
+          </fieldset>
 
-          <h3>Your monthly expenses</h3>
-          <p class="help-text">Leave an expense blank or enter 0 if it does not apply.</p>
-          <div class="form-grid expense-grid">
-            <label>Food and meals<input name="food" type="number" min="0" step="0.01" /></label>
-            <label>Transportation<input name="transportation" type="number" min="0" step="0.01" /></label>
-            <label>School expenses<input name="school" type="number" min="0" step="0.01" /></label>
-            <label>Internet and data<input name="internet" type="number" min="0" step="0.01" /></label>
-            <label>Personal expenses<input name="personal" type="number" min="0" step="0.01" /></label>
-            <label>Other expenses<input name="other" type="number" min="0" step="0.01" /></label>
-          </div>
+          <fieldset>
+            <legend>Monthly income and expenses</legend>
+            <div class="form-grid">
+              <label>
+                Allowance per payment (₱) *
+                <small class="field-help">Enter one payment amount.</small>
+                <input name="monthlyAllowance" type="number" min="0" step="1" placeholder="e.g. 500" required />
+              </label>
+              <label>
+                Payment frequency
+                <select name="allowanceFrequency">
+                  <option value="weekly">Weekly</option>
+                  <option value="every_2_weeks">Every 2 weeks</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </label>
+              <label>
+                Planned monthly savings (₱) *
+                <small class="field-help">Amount you plan to save after expenses.</small>
+                <input name="plannedMonthlySavings" type="number" min="0" step="1" placeholder="e.g. 300" required />
+              </label>
+            </div>
+            <h4>Monthly expenses (₱)</h4>
+            <p class="section-note">Enter whole pesos. Leave blank if none.</p>
+            <div class="form-grid expense-grid">
+              <label>Food<input name="food" type="number" min="0" step="1" placeholder="e.g. 600" /></label>
+              <label>Transport<input name="transportation" type="number" min="0" step="1" placeholder="e.g. 200" /></label>
+              <label>School<input name="school" type="number" min="0" step="1" placeholder="e.g. 300" /></label>
+              <label>Internet / data<input name="internet" type="number" min="0" step="1" placeholder="e.g. 150" /></label>
+              <label>Personal<input name="personal" type="number" min="0" step="1" placeholder="e.g. 250" /></label>
+              <label>Other<input name="other" type="number" min="0" step="1" placeholder="e.g. 100" /></label>
+            </div>
+          </fieldset>
 
           <p id="formMessage" class="message" role="status" aria-live="polite"></p>
-          <button type="submit">Calculate my savings plan</button>
+          <button type="submit">Submit assessment</button>
         </form>
       </section>
 
-      <section id="resultCard" class="card result-card" hidden>
-        <h2>Your result</h2>
+      <section id="resultCard" class="result-card" hidden>
+        <h2>Assessment result</h2>
         <p id="statusLabel" class="status-label"></p>
         <div id="resultDetails" class="result-details"></div>
         <p id="recommendation" class="recommendation"></p>

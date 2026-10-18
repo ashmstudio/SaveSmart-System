@@ -13,6 +13,7 @@ from pathlib import Path
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 OOP_DIR = PROJECT_DIR / "oop-python"
 JS_FILE = PROJECT_DIR / "procedural-js" / "app.js"
+GUIDE_FILE = OOP_DIR / "DEFENSE_GUIDE.md"
 
 
 def load_module(module_name, file_path):
@@ -85,19 +86,19 @@ class AssessmentSystemTests(unittest.TestCase):
         assessment_input = dict(
             SAMPLE_INPUT,
             studentName="Alex",
-            monthlyAllowance="850.25",
+            monthlyAllowance="850",
             allowanceFrequency="every_2_weeks",
-            food="100.50",
+            food="100",
             transportation="40",
-            school="75.25",
+            school="75",
             internet="15",
             personal="30",
             other="0",
-            currentSavings="200.75",
+            currentSavings="200",
             goalPurpose="Emergency Fund",
             savingsGoal="2500",
             savingPeriod="5",
-            plannedMonthlySavings="450.25",
+            plannedMonthlySavings="450",
         )
         python_result = SavingsAssessmentSystem(assessment_input).process()
         javascript_run = run_javascript(assessment_input)
@@ -122,7 +123,7 @@ class AssessmentSystemTests(unittest.TestCase):
             SAMPLE_INPUT,
             monthlyAllowance=0,
             currentSavings=0,
-            savingsGoal=0,
+            savingsGoal=1,
             plannedMonthlySavings=0,
             savingPeriod=1,
             food=0,
@@ -147,10 +148,12 @@ class AssessmentSystemTests(unittest.TestCase):
             personal=0,
             other=0,
         )
+        exceeded_goal_input = dict(reached_goal_input, currentSavings=13000)
 
-        for assessment_input, expected_status in (
-            (zero_input, "GREEN"),
-            (reached_goal_input, "GREEN"),
+        for assessment_input, expected_status, expected_required in (
+            (zero_input, "RED", 1),
+            (reached_goal_input, "GREEN", 0),
+            (exceeded_goal_input, "GREEN", 0),
         ):
             with self.subTest(status=expected_status, goal=assessment_input["savingsGoal"]):
                 python_result = SavingsAssessmentSystem(assessment_input).process()
@@ -159,7 +162,9 @@ class AssessmentSystemTests(unittest.TestCase):
                 self.assertEqual(javascript_run.returncode, 0, javascript_run.stderr)
                 self.assertEqual(python_result, json.loads(javascript_run.stdout))
                 self.assertEqual(python_result["status"], expected_status)
-                self.assertEqual(python_result["requiredMonthlySavings"], 0)
+                self.assertEqual(
+                    python_result["requiredMonthlySavings"], expected_required
+                )
 
     def test_each_status_matches(self):
         green_input = dict(
@@ -207,21 +212,74 @@ class AssessmentSystemTests(unittest.TestCase):
                 self.assertEqual(python_result, javascript_result)
                 self.assertEqual(python_result["status"], expected_status)
 
-    def test_decimal_calculations_match(self):
+    def test_monthly_savings_capacity_is_capped_at_plan_and_budget(self):
+        for planned, monthly_expenses, available, expected_capacity in (
+            (200, 400, 600, 200),
+            (600, 400, 600, 600),
+            (900, 400, 600, 600),
+            (500, 1100, -100, 0),
+        ):
+            assessment_input = dict(
+                SAMPLE_INPUT,
+                monthlyAllowance=1000,
+                allowanceFrequency="monthly",
+                food=monthly_expenses,
+                transportation=0,
+                school=0,
+                internet=0,
+                personal=0,
+                other=0,
+                currentSavings=0,
+                savingsGoal=1200,
+                savingPeriod=2,
+                plannedMonthlySavings=planned,
+            )
+            python_result = SavingsAssessmentSystem(assessment_input).process()
+            javascript_run = run_javascript(assessment_input)
+            javascript_result = json.loads(javascript_run.stdout)
+
+            self.assertEqual(javascript_run.returncode, 0, javascript_run.stderr)
+            self.assertEqual(python_result, javascript_result)
+            self.assertEqual(python_result["availableMoney"], available)
+            self.assertEqual(python_result["monthlySavingsCapacity"], expected_capacity)
+            self.assertEqual(
+                python_result["expectedSavings"],
+                expected_capacity * assessment_input["savingPeriod"],
+            )
+            if available > 0 and planned > available:
+                self.assertIn(
+                    "The assessment uses only the available amount",
+                    python_result["recommendation"],
+                )
+            if available < 0:
+                self.assertEqual(python_result["status"], "RED")
+                self.assertIn("no money left to save", python_result["recommendation"])
+
+    def test_zero_savings_goal_is_rejected_in_both_systems(self):
+        assessment_input = dict(SAMPLE_INPUT, savingsGoal=0)
+        expected_message = "Target savings amount must be greater than 0."
+        with self.assertRaisesRegex(ValueError, expected_message):
+            SavingsAssessmentSystem(assessment_input)
+
+        javascript_run = run_javascript(assessment_input)
+        self.assertNotEqual(javascript_run.returncode, 0)
+        self.assertEqual(json.loads(javascript_run.stdout)["error"], expected_message)
+
+    def test_fractional_required_monthly_savings_matches(self):
         assessment_input = dict(
             SAMPLE_INPUT,
-            monthlyAllowance="0.1",
+            monthlyAllowance="1",
             allowanceFrequency="monthly",
-            food="0.1",
-            transportation="0.2",
-            school="0.3",
-            internet="0.4",
-            personal="0.5",
-            other="0.6",
-            currentSavings="0.2",
-            savingsGoal="1.1",
+            food="0",
+            transportation="0",
+            school="0",
+            internet="0",
+            personal="0",
+            other="0",
+            currentSavings="10",
+            savingsGoal="100",
             savingPeriod="3",
-            plannedMonthlySavings="0.3",
+            plannedMonthlySavings="30",
         )
         python_result = SavingsAssessmentSystem(assessment_input).process()
         javascript_run = run_javascript(assessment_input)
@@ -231,16 +289,18 @@ class AssessmentSystemTests(unittest.TestCase):
 
     def test_invalid_inputs_are_rejected_with_the_same_message(self):
         invalid_cases = (
-            ("monthlyAllowance", "-1", "Please enter a valid amount for monthly allowance."),
-            ("monthlyAllowance", "NaN", "Please enter a valid amount for monthly allowance."),
-            ("monthlyAllowance", "0x10", "Please enter a valid amount for monthly allowance."),
-            ("monthlyAllowance", "   ", "Please enter a valid amount for monthly allowance."),
-            ("food", "-0.01", "Please enter a valid amount for food expenses."),
-            ("food", "0.001", "Please enter a valid amount for food expenses."),
+            ("monthlyAllowance", "-1", "Please enter a whole-peso amount for allowance received each time."),
+            ("monthlyAllowance", "NaN", "Please enter a whole-peso amount for allowance received each time."),
+            ("monthlyAllowance", "0x10", "Please enter a whole-peso amount for allowance received each time."),
+            ("monthlyAllowance", "   ", "Please enter a whole-peso amount for allowance received each time."),
+            ("monthlyAllowance", "100.5", "Please enter a whole-peso amount for allowance received each time."),
+            ("food", "-1", "Please enter a whole-peso amount for food and meals expenses."),
+            ("food", "0.5", "Please enter a whole-peso amount for food and meals expenses."),
+            ("savingsGoal", "0", "Target savings amount must be greater than 0."),
             ("savingPeriod", "0", "Please enter a whole number of months greater than 0."),
             ("savingPeriod", "-1", "Please enter a whole number of months greater than 0."),
             ("savingPeriod", "2.5", "Please enter a whole number of months greater than 0."),
-            ("food", "not a number", "Please enter a valid amount for food expenses."),
+            ("food", "not a number", "Please enter a whole-peso amount for food and meals expenses."),
         )
 
         for field, invalid_value, expected_message in invalid_cases:
@@ -284,7 +344,7 @@ class AssessmentSystemTests(unittest.TestCase):
             SAMPLE_INPUT,
             monthlyAllowance="0",
             currentSavings="0",
-            savingsGoal="0",
+            savingsGoal="1",
             plannedMonthlySavings="0",
             food="0",
             transportation="0",
@@ -312,7 +372,7 @@ class AssessmentSystemTests(unittest.TestCase):
             "other",
         ):
             with self.subTest(field=field):
-                assessment_input = dict(SAMPLE_INPUT, **{field: "-0.01"})
+                assessment_input = dict(SAMPLE_INPUT, **{field: "-1"})
                 with self.assertRaises(ValueError) as python_error:
                     SavingsAssessmentSystem(assessment_input)
 
@@ -346,8 +406,21 @@ class AssessmentSystemTests(unittest.TestCase):
             "other",
         ):
             self.assertEqual(parsed_forms[0][field]["type"], "number")
+            self.assertEqual(parsed_forms[0][field]["step"], "1")
+
+        self.assertEqual(parsed_forms[0]["savingsGoal"]["min"], "1")
+        for field in (
+            "currentSavings",
+            "monthlyAllowance",
+            "plannedMonthlySavings",
+            "food",
+            "transportation",
+            "school",
+            "internet",
+            "personal",
+            "other",
+        ):
             self.assertEqual(parsed_forms[0][field]["min"], "0")
-            self.assertEqual(parsed_forms[0][field]["step"], "0.01")
 
         period = parsed_forms[0]["savingPeriod"]
         self.assertEqual(period["type"], "number")
@@ -372,17 +445,18 @@ class AssessmentSystemTests(unittest.TestCase):
             self.assertNotIn("PROCEDURAL VERSION</p>", html)
             self.assertNotIn("OBJECT-ORIENTED VERSION</p>", html)
             self.assertNotIn("Make a simple plan for reaching your savings goal.", html)
-            self.assertIn("* Required", html)
+            self.assertIn("* Required. All money amounts use whole pesos.", html)
             for phrase in (
                 "Your name",
-                "How much do you want to save?",
-                "How much have you saved?",
+                "What is your target savings amount?",
+                "How much have you saved so far?",
                 "How often do you receive your allowance?",
                 "What are you saving for?",
-                "How many months do you have?",
-                "How much allowance do you receive?",
-                "How much can you save each month?",
-                "Your monthly expenses",
+                "When do you want to reach your savings goal?",
+                "Months remaining to reach your goal",
+                "How much allowance do you receive each time?",
+                "How much money can you set aside for savings each month?",
+                "Your estimated monthly expenses",
                 "Food and meals",
                 "Transportation",
                 "School expenses",
@@ -392,6 +466,12 @@ class AssessmentSystemTests(unittest.TestCase):
                 "Calculate my savings plan",
             ):
                 self.assertIn(phrase, html)
+
+        self.assertTrue((OOP_DIR / "requirements.txt").is_file())
+        self.assertFalse((PROJECT_DIR / "requirements.txt").exists())
+        self.assertTrue((OOP_DIR / "data" / "assessments.json").is_file())
+        self.assertFalse((PROJECT_DIR / "data").exists())
+        self.assertTrue(GUIDE_FILE.is_file())
 
     def test_flask_page_and_assessment_api(self):
         client = python_app.app.test_client()
@@ -403,7 +483,6 @@ class AssessmentSystemTests(unittest.TestCase):
                 self.assertEqual(page.status_code, 200)
                 self.assertIn(b"<title>SaveSmart</title>", page.data)
                 self.assertIn(b"<h1>SaveSmart</h1>", page.data)
-                self.assertNotIn(b"PYTHON OBJECT-ORIENTED VERSION", page.data)
                 self.assertNotIn(
                     b"Make a simple plan for reaching your savings goal.", page.data
                 )

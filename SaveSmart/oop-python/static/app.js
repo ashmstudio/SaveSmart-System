@@ -41,15 +41,17 @@ function showResult(result) {
   const details = [
     ["Your name", result.studentName],
     ["What are you saving for?", result.goalPurpose],
-    ["How much have you saved?", formatMoney(result.currentSavings)],
-    ["How much do you want to save?", formatMoney(result.savingsGoal)],
-    ["How many months do you have?", `${result.savingPeriod} months`],
-    ["How much can you save each month?", formatMoney(result.plannedMonthlySavings)],
-    ["Estimated monthly income", formatMoney(result.estimatedMonthlyIncome)],
-    ["Total monthly expenses", formatMoney(result.totalMonthlyExpenses)],
-    ["Available money", formatMoney(result.availableMoney)],
-    ["Required monthly savings", formatMoney(result.requiredMonthlySavings)],
-    ["Expected savings", formatMoney(result.expectedSavings)],
+    ["Current savings so far", formatMoney(result.currentSavings)],
+    ["Target savings amount", formatMoney(result.savingsGoal)],
+    ["Months remaining to reach your goal", `${result.savingPeriod} months`],
+    ["Allowance received each time", formatMoney(result.monthlyAllowance)],
+    ["Allowance frequency", result.allowanceFrequency],
+    ["Amount you can set aside each month", formatMoney(result.plannedMonthlySavings)],
+    ["Available to save after expenses", formatMoney(result.monthlySavingsCapacity)],
+    ["Estimated monthly allowance", formatMoney(result.estimatedMonthlyIncome)],
+    ["Estimated monthly expenses", formatMoney(result.totalMonthlyExpenses)],
+    ["Required savings each month", formatMoney(result.requiredMonthlySavings)],
+    ["Estimated savings by your target date", formatMoney(result.expectedSavings)],
   ];
   const resultDetails = document.getElementById("resultDetails");
   resultDetails.replaceChildren();
@@ -71,8 +73,8 @@ function showResult(result) {
 }
 
 function formatMoney(amount) {
-  return Number(amount).toLocaleString("en-PH", {
+  return `₱${Number(amount).toLocaleString("en-PH", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  });
+  })}`;
 }

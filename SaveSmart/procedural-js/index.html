@@ -11,19 +11,19 @@
     <main class="page-shell">
       <header class="page-heading">
         <h1>SaveSmart</h1>
+        <p class="system-name">PROCEDURAL</p>
       </header>
 
-      <section class="card">
-        <h2>Your assessment</h2>
-        <p class="help-text">* Required</p>
-        <form id="assessmentForm" novalidate>
+      <form id="assessmentForm" novalidate>
+        <section class="form-section">
+          <h2>1. Savings target</h2>
           <div class="form-grid">
             <label>
-              Your name
-              <input name="studentName" type="text" placeholder="Your name" />
+              Your name (optional)
+              <input name="studentName" type="text" placeholder="Enter your name" />
             </label>
             <label>
-              What are you saving for?
+              Savings purpose
               <select name="goalPurpose">
                 <option>School Expenses</option>
                 <option>Gadget / Laptop</option>
@@ -34,23 +34,33 @@
               </select>
             </label>
             <label>
-              How much do you want to save? *
-              <input name="savingsGoal" type="number" min="0" step="0.01" required />
+              Target amount (₱) *
+              <small class="field-help">Whole pesos; enter your final goal.</small>
+              <input name="savingsGoal" type="number" min="1" step="1" placeholder="e.g. 5000" required />
             </label>
             <label>
-              How many months do you have? *
-              <input name="savingPeriod" type="number" min="1" step="1" required />
+              Months to reach target *
+              <small class="field-help">Whole months from now (e.g. 6).</small>
+              <input name="savingPeriod" type="number" min="1" step="1" placeholder="e.g. 6" required />
             </label>
             <label>
-              How much have you saved? *
-              <input name="currentSavings" type="number" min="0" step="0.01" required />
+              Current savings (₱) *
+              <small class="field-help">Amount already saved toward this goal.</small>
+              <input name="currentSavings" type="number" min="0" step="1" placeholder="e.g. 3000" required />
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section">
+          <h2>2. Monthly budget</h2>
+          <div class="form-grid">
+            <label>
+              Allowance per payment (₱) *
+              <small class="field-help">Enter one payment amount.</small>
+              <input name="monthlyAllowance" type="number" min="0" step="1" placeholder="e.g. 500" required />
             </label>
             <label>
-              How much allowance do you receive? *
-              <input name="monthlyAllowance" type="number" min="0" step="0.01" required />
-            </label>
-            <label>
-              How often do you receive your allowance?
+              Payment frequency
               <select name="allowanceFrequency">
                 <option value="weekly">Weekly</option>
                 <option value="every_2_weeks">Every 2 weeks</option>
@@ -58,29 +68,31 @@
               </select>
             </label>
             <label>
-              How much can you save each month? *
-              <input name="plannedMonthlySavings" type="number" min="0" step="0.01" required />
+              Planned monthly savings (₱) *
+              <small class="field-help">Amount you plan to save after expenses.</small>
+              <input name="plannedMonthlySavings" type="number" min="0" step="1" placeholder="e.g. 300" required />
             </label>
           </div>
 
-          <h3>Your monthly expenses</h3>
-          <p class="help-text">Leave an expense blank or enter 0 if it does not apply.</p>
+          <h3>Monthly expenses (₱)</h3>
+          <p class="help-text">Enter whole pesos. Leave blank if none.</p>
           <div class="form-grid expense-grid">
-            <label>Food and meals<input name="food" type="number" min="0" step="0.01" /></label>
-            <label>Transportation<input name="transportation" type="number" min="0" step="0.01" /></label>
-            <label>School expenses<input name="school" type="number" min="0" step="0.01" /></label>
-            <label>Internet and data<input name="internet" type="number" min="0" step="0.01" /></label>
-            <label>Personal expenses<input name="personal" type="number" min="0" step="0.01" /></label>
-            <label>Other expenses<input name="other" type="number" min="0" step="0.01" /></label>
+            <label>Food<input name="food" type="number" min="0" step="1" placeholder="e.g. 600" /></label>
+            <label>Transport<input name="transportation" type="number" min="0" step="1" placeholder="e.g. 200" /></label>
+            <label>School<input name="school" type="number" min="0" step="1" placeholder="e.g. 300" /></label>
+            <label>Internet / data<input name="internet" type="number" min="0" step="1" placeholder="e.g. 150" /></label>
+            <label>Personal<input name="personal" type="number" min="0" step="1" placeholder="e.g. 250" /></label>
+            <label>Other<input name="other" type="number" min="0" step="1" placeholder="e.g. 100" /></label>
           </div>
+        </section>
 
-          <p id="formMessage" class="message" role="status" aria-live="polite"></p>
-          <button type="submit">Calculate my savings plan</button>
-        </form>
-      </section>
+        <p class="required-note">* Required fields · All amounts in whole pesos</p>
+        <p id="formMessage" class="message" role="status" aria-live="polite"></p>
+        <button type="submit">Calculate savings</button>
+      </form>
 
-      <section id="resultCard" class="card result-card" hidden>
-        <h2>Your result</h2>
+      <section id="resultCard" class="result-card" hidden>
+        <h2>Your savings assessment</h2>
         <p id="statusLabel" class="status-label"></p>
         <div id="resultDetails" class="result-details"></div>
         <p id="recommendation" class="recommendation"></p>

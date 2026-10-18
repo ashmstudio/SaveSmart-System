@@ -12,8 +12,8 @@ except ImportError:
     from oop_system import SavingsAssessmentSystem
 
 
-PROJECT_DIR = Path(__file__).resolve().parent.parent
-ASSESSMENTS_PATH = PROJECT_DIR / "data" / "assessments.json"
+APP_DIR = Path(__file__).resolve().parent
+ASSESSMENTS_PATH = APP_DIR / "data" / "assessments.json"
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
