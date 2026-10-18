@@ -1,4 +1,4 @@
 @echo off
-cd /d C:\mycodex\MCO_CS301\SaveSmart
-python app.py
+cd /d "%~dp0oop-python"
+..\..\.venv\Scripts\python.exe app.py
 pause

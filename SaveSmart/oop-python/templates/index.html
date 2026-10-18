@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SaveSmart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="page-heading">
+        <h1>SaveSmart</h1>
+      </header>
+
+      <section class="card">
+        <h2>Your assessment</h2>
+        <p class="help-text">* Required</p>
+        <form id="assessmentForm" novalidate>
+          <div class="form-grid">
+            <label>
+              Your name
+              <input name="studentName" type="text" placeholder="Your name" />
+            </label>
+            <label>
+              What are you saving for?
+              <select name="goalPurpose">
+                <option>School Expenses</option>
+                <option>Gadget / Laptop</option>
+                <option>Emergency Fund</option>
+                <option>Travel</option>
+                <option>Personal Goal</option>
+                <option>Other</option>
+              </select>
+            </label>
+            <label>
+              How much do you want to save? *
+              <input name="savingsGoal" type="number" min="0" step="0.01" required />
+            </label>
+            <label>
+              How many months do you have? *
+              <input name="savingPeriod" type="number" min="1" step="1" required />
+            </label>
+            <label>
+              How much have you saved? *
+              <input name="currentSavings" type="number" min="0" step="0.01" required />
+            </label>
+            <label>
+              How much allowance do you receive? *
+              <input name="monthlyAllowance" type="number" min="0" step="0.01" required />
+            </label>
+            <label>
+              How often do you receive your allowance?
+              <select name="allowanceFrequency">
+                <option value="weekly">Weekly</option>
+                <option value="every_2_weeks">Every 2 weeks</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </label>
+            <label>
+              How much can you save each month? *
+              <input name="plannedMonthlySavings" type="number" min="0" step="0.01" required />
+            </label>
+          </div>
+
+          <h3>Your monthly expenses</h3>
+          <p class="help-text">Leave an expense blank or enter 0 if it does not apply.</p>
+          <div class="form-grid expense-grid">
+            <label>Food and meals<input name="food" type="number" min="0" step="0.01" /></label>
+            <label>Transportation<input name="transportation" type="number" min="0" step="0.01" /></label>
+            <label>School expenses<input name="school" type="number" min="0" step="0.01" /></label>
+            <label>Internet and data<input name="internet" type="number" min="0" step="0.01" /></label>
+            <label>Personal expenses<input name="personal" type="number" min="0" step="0.01" /></label>
+            <label>Other expenses<input name="other" type="number" min="0" step="0.01" /></label>
+          </div>
+
+          <p id="formMessage" class="message" role="status" aria-live="polite"></p>
+          <button type="submit">Calculate my savings plan</button>
+        </form>
+      </section>
+
+      <section id="resultCard" class="card result-card" hidden>
+        <h2>Your result</h2>
+        <p id="statusLabel" class="status-label"></p>
+        <div id="resultDetails" class="result-details"></div>
+        <p id="recommendation" class="recommendation"></p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -142,5 +142,53 @@
     "planned_monthly_savings": 3000.0,
     "expected_savings": 40000.0,
     "assessment_status": "GOAL ACHIEVABLE"
+  },
+  {
+    "user_name": "Ash Muso",
+    "user_email": "verify-ee7d14ff34cd4d93baebea5d94d55666@example.com",
+    "date": "October 18, 2026",
+    "monthly_income": 6000.0,
+    "total_expenses": 1600.0,
+    "available_money": 4400.0,
+    "required_monthly_savings": 1916.6666666666667,
+    "current_savings": 500.0,
+    "savings_goal": 12000.0,
+    "goal_purpose": "Gadget / Laptop",
+    "saving_period": 6.0,
+    "planned_monthly_savings": 1800.0,
+    "expected_savings": 11300.0,
+    "assessment_status": "NEEDS ADJUSTMENT"
+  },
+  {
+    "user_name": "A",
+    "user_email": "a@example.com",
+    "date": "October 18, 2026",
+    "monthly_income": 6000.0,
+    "total_expenses": 1600.0,
+    "available_money": 4400.0,
+    "required_monthly_savings": 1916.6666666666667,
+    "current_savings": 500.0,
+    "savings_goal": 12000.0,
+    "goal_purpose": "Gadget / Laptop",
+    "saving_period": 6.0,
+    "planned_monthly_savings": 1800.0,
+    "expected_savings": 11300.0,
+    "assessment_status": "NEEDS ADJUSTMENT"
+  },
+  {
+    "user_name": "Ash Muso",
+    "user_email": "verify-14fe8ec0f1f04e4eb72e12c358240fbf@example.com",
+    "date": "October 18, 2026",
+    "monthly_income": 6000.0,
+    "total_expenses": 1600.0,
+    "available_money": 4400.0,
+    "required_monthly_savings": 1916.6666666666667,
+    "current_savings": 500.0,
+    "savings_goal": 12000.0,
+    "goal_purpose": "Gadget / Laptop",
+    "saving_period": 6.0,
+    "planned_monthly_savings": 1800.0,
+    "expected_savings": 11300.0,
+    "assessment_status": "NEEDS ADJUSTMENT"
   }
 ]
